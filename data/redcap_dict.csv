@@ -1,0 +1,77 @@
+"Variable / Field Name","Form Name","Section Header","Field Type","Field Label","Choices, Calculations, OR Slider Labels","Field Note","Text Validation Type OR Show Slider Number","Text Validation Min","Text Validation Max",Identifier?,"Branching Logic (Show field only if...)","Required Field?","Custom Alignment","Question Number (surveys only)","Matrix Group Name","Matrix Ranking?","Field Annotation"
+record_id,demographics,,text,"Study ID",,,,,,,,,,,,,
+trt,demographics,,radio,Treatment,"1, High | 2, Standard | 3, Low | 4, Control",,,,,,,,,,,,
+first_name,demographics,"Contact Information",text,"First Name",,,,,,y,,,,,,,
+last_name,demographics,,text,"Last Name",,,,,,y,,,,,,,
+address,demographics,,notes,"Street, City, State, ZIP",,,,,,y,,,,,,,
+telephone,demographics,,text,"Phone number",,"Include Area Code",phone,,,y,,,,,,,
+email,demographics,,text,E-mail,,,email,,,y,,,,,,,
+dob,demographics,,text,"Date of birth",,,date_ymd,,,y,,,,,,,
+age,demographics,,calc,"Age (years)","rounddown(datediff([dob],'today','y'))",,,,,,,,,,,,
+ethnicity,demographics,,radio,Ethnicity,"0, Hispanic or Latino | 1, NOT Hispanic or Latino | 2, Unknown / Not Reported",,,,,,,,LH,,,,
+race,demographics,,dropdown,Race,"0, American Indian/Alaska Native | 1, Asian | 2, Native Hawaiian or Other Pacific Islander | 3, Black or African American | 4, White | 5, More Than One Race | 6, Unknown / Not Reported",,,,,,,,,,,,
+sex,demographics,,radio,Gender,"0, Female | 1, Male",,,,,,,,,,,,
+height,demographics,,text,"Height (cm)",,,number,130,215,,,,,,,,
+weight,demographics,,text,"Weight (kilograms)",,,integer,35,200,,,,,,,,
+bmi,demographics,,calc,BMI,"round(([weight]*10000)/(([height])^(2)),1)",,,,,,,,,,,,
+comments,demographics,"General Comments",notes,Comments,,,,,,,,,,,,,
+record_id_1ec468,screener,,text,"Record ID",,,,,,,,y,,,,,
+scr_lc_diag,screener,,text,"When were you diagnosed with Covid?",,,date_mdy,2020-01-10,today,,,y,,,,,
+sym_q1,screener,"Inclusion Criteria",radio,"Tiredness or fatigue that interferes with daily life","1, No | 2, Yes | 3, Yes, 3 months +",,,,,,,y,,,lc_sym,,
+sym_q2,screener,,radio,"Symptoms that get worse after physical or mental effort (also known as ""post-exertional malaise"")","1, No | 2, Yes | 3, Yes, 3 months +",,,,,,,y,,,lc_sym,,
+sym_q3,screener,,radio,Fever,"1, No | 2, Yes | 3, Yes, 3 months +",,,,,,,y,,,lc_sym,,
+sym_q4,screener,,radio,"Difficulty breathing or shortness of breath","1, No | 2, Yes | 3, Yes, 3 months +",,,,,,,y,,,lc_sym,,
+sym_q5,screener,,radio,Cough,"1, No | 2, Yes | 3, Yes, 3 months +",,,,,,,y,,,lc_sym,,
+sym_q6,screener,,radio,"Chest pain","1, No | 2, Yes | 3, Yes, 3 months +",,,,,,,y,,,lc_sym,,
+sym_q7,screener,,radio,"Fast-beating or pounding heart (also known as heart palpitations)","1, No | 2, Yes | 3, Yes, 3 months +",,,,,,,y,,,lc_sym,,
+sym_q8,screener,,radio,"Difficulty thinking or concentrating (sometimes referred to as ""brain fog"")","1, No | 2, Yes | 3, Yes, 3 months +",,,,,,,y,,,lc_sym,,
+sym_q9,screener,,radio,Headache,"1, No | 2, Yes | 3, Yes, 3 months +",,,,,,,y,,,lc_sym,,
+sym_q10,screener,,radio,"Sleep problems","1, No | 2, Yes | 3, Yes, 3 months +",,,,,,,y,,,lc_sym,,
+sym_q11,screener,,radio,"Dizziness when you stand up (lightheadedness)","1, No | 2, Yes | 3, Yes, 3 months +",,,,,,,y,,,lc_sym,,
+sym_q12,screener,,radio,"Pins-and-needles feelings","1, No | 2, Yes | 3, Yes, 3 months +",,,,,,,y,,,lc_sym,,
+sym_q13,screener,,radio,"Change in smell or taste","1, No | 2, Yes | 3, Yes, 3 months +",,,,,,,y,,,lc_sym,,
+sym_q14,screener,,radio,"Depression or anxiety","1, No | 2, Yes | 3, Yes, 3 months +",,,,,,,y,,,lc_sym,,
+sym_q15,screener,,radio,Diarrhea,"1, No | 2, Yes | 3, Yes, 3 months +",,,,,,,y,,,lc_sym,,
+sym_q16,screener,,radio,"Stomach pain","1, No | 2, Yes | 3, Yes, 3 months +",,,,,,,y,,,lc_sym,,
+sym_q17,screener,,radio,"Joint or muscle pain","1, No | 2, Yes | 3, Yes, 3 months +",,,,,,,y,,,lc_sym,,
+sym_q18,screener,,radio,Rash,"1, No | 2, Yes | 3, Yes, 3 months +",,,,,,,y,,,lc_sym,,
+sym_q19,screener,,radio,"Changes in menstrual cycles","1, No | 2, Yes | 3, Yes, 3 months +",,,,,,,y,,,lc_sym,,
+live_pa,screener,,yesno,"Do you live in Pennsylvania or live close enough to be able to pick up a prescription from a pharmacy within the Pennsylvania Commonwealth?",,,,,,,,y,,,,,
+access_pc,screener,,yesno,"Do you have access to a tablet or computer (not cell phone) to complete study instruments?",,,,,,,,y,,,,,
+scr_ex_cond_2,screener,,checkbox,"Have you had any of the following","1, history of any of the following: Dementia, Psychosis, Mania, Addiction/substance misuse, Uncontrolled blood pressure | 2, currently taking a stimulant | 3, previous adverse reaction to Adderall | 4, pre-existing cardiac or kidney condition | 5, diagnosed with severe hypertension, glaucoma, or advanced arteriosclerosis | 6, None of these",,,,,,,y,,,,,
+scr_sex,screener,"Exclusion Criteria",radio,Sex,"1, Male | 2, Female",,,,,,,y,,,,,
+scr_ex_preg,screener,,yesno,"Are you pregnant or plan to become pregnant in the next three months?",,,,,,,,y,,,,,
+scr_ex_contra,screener,,yesno,"Have you abstained or used contraception to prevent pregnancy in the past 28 days?",,,,,,,,y,,,,,
+scr_ex_med,screener,,checkbox,"Have you taken any of the following medications within the past 14 days?","1, Methylphenidate | 2, Lisdexamfetamine | 3, non-Adderall amphetamine products | 4, Atomoxetine | 5, Viloxazine | 6, Modafinil | 7, Armodafinil | 8, Tramadol | 9, None of these",,,,,,,y,,,,,
+scr_ex_maoi,screener,,checkbox,"Have you taken any of the following Monoamine Oxidase Inhibitor (MAOI) drugs within the past 14 days?
+","1, Linezolid | 2, Isocarboxazid (Marplan) | 3, Phenelzine (Nardil) | 4, Selegiline (Emsam) | 5, Tranylcypromine (Parnate) | 6, None of these",,,,,,,y,,,,,
+scr_in_calc,screener,Registration,calc,"Does this meet the inclusion and exclusion criteria  (Yes = 1, No = 0)?","if(
+   [sym_q1] = 3 or 
+   [sym_q2] = 3 or 
+   [sym_q3] = 3 or 
+   [sym_q4] = 3 or 
+   [sym_q5] = 3 or 
+   [sym_q6] = 3 or 
+   [sym_q7] = 3 or 
+   [sym_q8] = 3 or 
+   [sym_q9] = 3 or 
+  [sym_q10] = 3 or 
+  [sym_q11] = 3 or 
+  [sym_q12] = 3 or 
+  [sym_q13] = 3 or 
+  [sym_q14] = 3 or 
+  [sym_q15] = 3 or 
+  [sym_q16] = 3 or 
+  [sym_q17] = 3 or 
+  [sym_q18] = 3 or 
+  [sym_q19] = 3 and 
+  [live_pa] = 1 and 
+  [access_pc] = 1,
+  1,
+  0
+)",,,,,,,y,,,,,
+study_id,screener,"Contact Information",text,"Study ID",,,integer,1,120,,"[scr_in_calc] = 1",y,,,,,
+first_name_6c5d9b,screener,,text,"First Name",,,,,,y,"[scr_in_calc] = 1",y,,,,,
+last_name_ea8c96,screener,,text,"Last Name",,,,,,y,"[scr_in_calc] = 1",y,,,,,
+dep_sev,screener,Randomize,radio,"Depression Severity","0, No depression | 1, Has depression","Can be calculated from other questions as in inclusions and exclusion criteria",,,,,"[scr_in_calc] = 1",y,,,,,
+random,screener,,radio,Randomization,"0, Control | 1, Treatment",,,,,,"[scr_in_calc] = 1",y,,,,,
