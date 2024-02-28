@@ -1,0 +1,76 @@
+---
+title: "Sample analysis: Streptomycin on TB"
+author: Matt Broerman
+format: 
+  pdf:
+    toc: true
+  # html:
+  #   embed-resources: true
+  #   code-fold: true
+  #   toc: true
+---
+
+<!-- This is a comment.-->
+<!-- Note that I am outputting two formats from one "source" -->
+<!-- Each format has it's own settings, but some are only relevant to one -->
+
+## Set Up
+
+```{r message=FALSE}
+
+library(medicaldata)
+
+library(dplyr)
+library(tidyr)
+library(janitor)
+
+library(knitr)
+library(gt)
+library(gtsummary)
+
+strep_tb <- medicaldata::strep_tb |> as_tibble()
+```
+
+<!-- Note that I rearranged the content from demo_2_sum_sol.R. -->
+<!-- Note that I used message=FALSE to keep messages out of the compiled report -->
+
+## Baseline vs outcome
+
+In reviewing this study, notice that outcomes are both improvements, but different effect sizes. 
+
+```{r}
+strep_base <-
+  strep_tb |>
+  select(arm, baseline_condition, gender, rad_num) |>
+  separate(baseline_condition, into = c("baseline_num", "baseline_cond")) |>
+  mutate(baseline_num = as.numeric(baseline_num))
+
+strep_base_sum <-
+  strep_base |>
+  group_by(arm) |>
+  summarise(
+    n_pt = n(),
+    mean_baseline = mean(baseline_num),
+    mean_outcome = mean(rad_num)
+  )
+
+strep_base_sum |>
+  kable(digits = 3)
+```
+
+## Treatment vs outcome
+
+The point above is important for interpreting the tables below.
+
+<!-- Note the first table is not a "kable" -->
+
+```{r}
+strep_tb |> 
+  count(radiologic_6m, improved)
+
+strep_tb |>
+  tabyl(arm, improved) |> 
+  kable(caption = "Improved F/T")
+```
+
+That is, strictly speaking, on average both treatment groups "improved", but for the category "improved" defined on a likert scale, more of the treated vs control were "improved". 

@@ -15,7 +15,7 @@ df |> select(starts_with("v"))
 # load real data ----------------------------------------------------------
 ## use library() to look at {medicaldata}
 
-# this does print nicely at the console
+# this does not print nicely at the console
 medicaldata::blood_storage
 
 ?medicaldata::blood_storage
@@ -32,10 +32,6 @@ bs <- medicaldata::blood_storage |>
 
 strep_tb <- medicaldata::strep_tb
 
-
-
-scurvy
-
 strep_tb |>
   glimpse()
 
@@ -44,6 +40,7 @@ strep_tb |>
 
 # load redcap data --------------------------------------------------------
 # this is an example of "wide" data. In this case, `tidyselect` is helpful.
+# it also shows how much effort is needed for working with redcap data
 
 rc <- read_csv("data/redcap.csv")
 
@@ -59,5 +56,10 @@ rc |> select(record_id, ends_with("name"))
 
 rc_lab <- read_csv("data/redcap_lab.csv")
 
-rc_lab |>
-  select(`Record ID`, contains("following"))
+rc_lab |> view()
+
+rc_dict <- read_csv("data/redcap_dict.csv")
+
+rc_dict |> view()
+
+
