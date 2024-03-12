@@ -1,0 +1,22 @@
+---
+title: "Demo 3 Join: solution"
+author: "Matt Broerman"
+format: html
+---
+
+## Setup
+
+```{r}
+library(tidyr)
+library(readr)
+```
+
+
+## Analysis Plan
+
+Introduce concepts of joins with band dataset. Then join 
+
+```{r}
+
+```
+
