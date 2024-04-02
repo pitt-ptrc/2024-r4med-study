@@ -1,0 +1,70 @@
+---
+title: "Demo 3 Join and Reshape"
+author: "Matt Broerman"
+format: html
+code-fold: true
+toc: true
+---
+
+## Setup
+
+I will need libraries for joining and pivoting
+
+```{r message=FALSE}
+library(tidyr)
+library(dplyr)
+library(readr)
+library(knitr)
+
+pat <- read_csv("data/patients.csv")
+adm <- read_csv("data/admissions.csv")
+
+```
+
+## Analysis
+
+### Reshape
+
+```{r}
+fish_encounters
+
+fish_wide <- 
+  fish_encounters %>% 
+  pivot_wider(names_from = station, values_from = seen)
+
+fish_wide %>% 
+  pivot_longer(!fish, names_to = "station", values_to = "seen")
+
+fish_encounters
+```
+
+
+### Join
+
+```{r}
+band_instruments
+band_instruments2
+
+band_members %>% 
+  left_join(band_instruments)
+
+left_join(band_members, band_instruments)
+
+band_members %>% 
+  left_join(band_instruments2, by = c("name" = "artist"))
+
+
+```
+## Real data
+
+```{r}
+adm
+
+pat %>% 
+  select(subject_id, gender, anchor_age) %>% 
+  left_join(adm) %>% 
+  count(gender, admission_type, sort = TRUE) %>% 
+  pivot_wider(names_from = "gender", values_from = "n") %>% 
+  kable()
+```
+

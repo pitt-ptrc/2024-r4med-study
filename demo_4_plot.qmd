@@ -1,0 +1,90 @@
+---
+author: Matt Broerman
+date: today
+format: 
+  html:
+    embed-resources: true
+---
+
+## Setup
+
+```{r message=FALSE}
+library(ggplot2)
+library(readr)
+library(dplyr)
+library(lubridate)
+
+pe <- read_csv("data/procedureevents.csv")
+adm <- read_csv("data/admissions.csv")
+pt <- read_csv("data/patients.csv")
+```
+
+## Exploratory Data Analysis
+
+### Weight
+
+```{r}
+pe |> glimpse()
+
+pe |> 
+  count(is.na(patientweight))
+
+pe |> 
+  count(hadm_id) |> 
+  count(n, sort = TRUE)
+
+pe_long <- pe |> 
+  filter(n() > 5, .by = hadm_id)
+
+pe_long |> 
+  ggplot(aes(storetime, patientweight)) +
+  geom_point()
+
+pe_long |> 
+  ggplot(aes(storetime, patientweight)) +
+  geom_jitter(position = position_jitter(height = 10))
+
+pe_long |> 
+  filter(storetime < "2112-08-02 10:44:00") |> 
+  ggplot(aes(storetime, patientweight)) +
+  geom_point()
+```
+
+This time course is not too interesting.
+
+
+
+### Procedures
+
+```{r}
+pe |> 
+  count(ordercategoryname)
+
+proc_from_adm <- 
+  adm |> 
+  left_join(pe) |> 
+  select(subject_id, hadm_id, admittime, starttime, ordercategoryname, admission_type) |> 
+  mutate(days_from_adm = (starttime - admittime)/ddays(1))
+
+proc_from_adm |> 
+  ggplot(aes(days_from_adm, hadm_id, color = admission_type)) +
+  geom_point()
+
+proc_from_adm |> 
+  ggplot(aes(days_from_adm, hadm_id, color = ordercategoryname)) +
+  geom_point()
+
+```
+
+
+```{r}
+proc_from_adm |> 
+  filter(!is.na(ordercategoryname)) |> 
+  mutate(ER = admission_type == "EW EMER.") |> 
+  ggplot(aes(days_from_adm, hadm_id, color = ER)) +
+  geom_point() +
+  facet_wrap(vars(ordercategoryname))
+```
+
+
+
