@@ -1,0 +1,179 @@
+---
+title: "R for Medical Research: modeling"
+author: "Matt Broerman"
+format: 
+  html:
+    embed-resources: true
+---
+
+## Summary
+
+This exercise provides an analysis of procedure events related to patient admissions. We examine the types of procedures performed on patients based on various admission characteristics and patient demographics. The final model is summarized to interpret the odds of early procedure events based on admission source, gender, and age.
+
+## Load
+
+```{r setup, message=FALSE}
+# Load necessary libraries
+library(ggplot2)
+library(readr)
+library(dplyr)
+library(lubridate)
+library(broom)
+library(gtsummary)
+library(here)
+
+# Load datasets
+d_lab <- read_csv(here("data", "d_labitems.csv.gz"))
+pe <- read_csv(here("data", "procedureevents.csv"))
+adm <- read_csv(here("data","admissions.csv"))
+pt <- read_csv(here("data","patients.csv"))
+
+le <- read_csv(here("data", "labevents.csv.gz"))
+```
+
+
+## Explore and prepare
+
+```{r}
+
+adm |> glimpse()
+pe |> glimpse()
+
+adm |> 
+  count(admission_type, sort = TRUE)
+
+pe |> 
+  count(ordercategoryname, sort = TRUE)
+```
+
+In this section, we perform an initial exploration of the datasets. First, we examine the adm dataset to understand the distribution of different types of admissions. This count gives insight into the predominant admission categories, which may help interpret the results of the analysis later. We also review the ordercategoryname field in the pe dataset to get an overview of the types of procedures frequently ordered.
+
+
+We'll join the adm and pe datasets to obtain a combined view of admissions and procedures. 
+
+```{r}
+proc_from_adm <-
+  adm |>
+  left_join(pe) |>
+  select(subject_id,
+         hadm_id,
+         admittime,
+         starttime,
+         admission_type,
+         ordercategoryname) |>
+  mutate(days_from_adm = (starttime - admittime) / ddays(1))
+```
+
+Specifically, we include admittime and starttime to calculate the days_from_adm, which measures the time elapsed (in days) from admission to the procedure. This metric will later help identify procedures that occur within the first 12 hours of admission.
+
+
+```{r}
+mod_data_1 <- 
+  pt |> 
+  select(subject_id, gender, anchor_age) |> 
+  left_join(proc_from_adm) |> 
+  mutate(ER = admission_type == "EW EMER.") |> 
+  filter(ordercategoryname == "Peripheral Lines") |> 
+  select(subject_id, hadm_id, admittime, gender, anchor_age, ER, days_from_adm) |> 
+  mutate(proc_12hr = max(days_from_adm < 0.5), .by = hadm_id) |> 
+  mutate(tt_first_proc = min(days_from_adm), .by = hadm_id) |> 
+  select(-days_from_adm) |> 
+  distinct()
+
+mod_data_1
+
+```
+
+Here, we continue transforming the data to focus on our variable of interest: procedures classified under “Peripheral Lines.” We add a binary flag (ER) indicating if the patient was admitted through the emergency room. The proc_12hr variable is created to denote whether any procedure for each admission occurred within the first 12 hours (days_from_adm < 0.5). Additionally, tt_first_proc captures the minimum time to the first procedure per admission. The resulting dataset mod_data is now ready for analysis.
+
+```{r}
+
+mod_data_2 <- pt |> 
+  left_join(adm) |> 
+  left_join(le) |> 
+  left_join(d_lab) |> 
+  select(hadm_id, anchor_age, admittime, charttime, valuenum, label) |>
+  mutate(days = (charttime - admittime)/ddays(1)) |> 
+  filter(label == "Urea Nitrogen")
+
+mod_data_2
+
+
+mod_data_2 |> 
+  filter(min(charttime) == charttime, .by = hadm_id) |>
+  ggplot(aes(anchor_age, valuenum)) +
+  geom_point() +
+  labs(title = "First BUN")
+
+mod_data_2 |> 
+  summarise(anchor_age, valuenum = mean(valuenum), n_num = n(), .by = hadm_id) |> 
+  ggplot(aes(anchor_age, valuenum, size = n_num)) +
+  geom_point() +
+  labs(title = "Mean BUN")
+
+mod_data_2 |> 
+  mutate(old = if_else(anchor_age > 60, "old", "young")) |> 
+  arrange(hadm_id, days) |> 
+  ggplot(aes(days, valuenum, group = hadm_id, color = anchor_age)) +
+  geom_path() +
+  facet_wrap(vars(old))
+```
+
+
+## Results, four ways
+
+After running the model, we show four ways to look at the results
+
+### Mod 1
+
+```{r}
+mod1 <- glm(proc_12hr ~ ER + gender + anchor_age, data = mod_data_1, family = "binomial")
+
+# overview  
+mod1
+
+mod1_est <- as.list(coef(mod1))
+
+# coefficients and metrics
+summary(mod1)
+
+# coefficients in a handy format
+tidy(mod1, exponentiate = TRUE)
+
+# coefficient in a publishable format
+tbl_regression(mod1, exponentiate = TRUE)
+
+
+```
+
+
+The output from `tidy(exponentiate = TRUE)` provides the odds ratios for each predictor in the model, which are easier to interpret than the raw coefficients. 
+
+Here is the interpretation of the main term of interest.
+
+**ER (TRUE)**
+
+- Estimate: `r mod1_est$ERTRUE`
+- Interpretation: Emergency room admissions increase the odds of a procedure occurring within the first 12 hours by a factor of approximately 6.38 compared to non-emergency admissions, holding other variables constant. This is statistically significant with a very low p-value (p < 0.001), highlighting the strong association between emergency admissions and early procedures.
+
+### Mod 2
+
+```{r}
+mod2 <- lm(valuenum ~ anchor_age, data = mod_data_2)
+
+# overview  
+mod2
+
+# coefficients and metrics
+summary(mod2)
+
+# coefficients in a handy format
+tidy(mod2)
+
+# coefficient in a publishable format
+tbl_regression(mod2)
+```
+
+
+
+

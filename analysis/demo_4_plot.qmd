@@ -84,6 +84,14 @@ proc_from_adm |>
   ggplot(aes(days_from_adm, hadm_id, color = ER)) +
   geom_point() +
   facet_wrap(vars(ordercategoryname))
+
+proc_from_adm |> 
+  filter(!is.na(ordercategoryname)) |> 
+  filter(ordercategoryname == "Peripheral Lines") |> 
+  mutate(ER = admission_type == "EW EMER.") |> 
+  ggplot(aes(days_from_adm, hadm_id, color = ER)) +
+  geom_point() +
+  facet_wrap(vars(ordercategoryname))
 ```
 
 

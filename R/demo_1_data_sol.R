@@ -1,11 +1,13 @@
 # Solutions for session 1
 # the purpose of this demo is to get you comfortable examining data
 
-# load fake data ---------------------------------------------------------------
+
+# load libraries ----------------------------------------------------------
 
 library(tidyverse)
 library(janitor)
 
+# load fake data ---------------------------------------------------------------
 
 df <- read_csv("data/df.csv")
 
@@ -28,7 +30,7 @@ bs <- medicaldata::blood_storage |>
   as_tibble() |>
   clean_names()
 
-
+bs
 
 strep_tb <- medicaldata::strep_tb
 

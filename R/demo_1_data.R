@@ -4,6 +4,11 @@
 # 2. load trial and cohort data from a package
 # 3. read in redcap data
 
+
+# load libraries ----------------------------------------------------------
+
+
+
 # load fake data ---------------------------------------------------------------
 
 
@@ -12,5 +17,5 @@
 # try the strep, scruvy, and blood_storage ones
 
 # load redcap data --------------------------------------------------------
-# this is an example of "wide" data. In this case, `tidyselect` is helpful.
+# this is an example of "wide" data. In this case, try dplyr::starts_with()
 

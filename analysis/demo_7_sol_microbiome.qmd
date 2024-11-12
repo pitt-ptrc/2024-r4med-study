@@ -1,0 +1,257 @@
+---
+title: "Demo: Microbiome Analysis with Phyloseq"
+author: "Matt Broerman"
+format: 
+  html:
+    embed-resources: true
+---
+
+## Introduction
+
+In this demonstration, you will work with microbiome data using the `phyloseq` package in R. You will explore the data, manipulate it, and create visualizations to gain insights into microbial communities.
+
+## Setup
+
+Load the necessary libraries and data.
+
+```{r message=FALSE}
+# Load necessary packages
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+if (!requireNamespace("phyloseq", quietly = TRUE)) {
+     BiocManager::install("phyloseq")
+}
+
+library(phyloseq)
+library(tidyverse)
+library(here)
+
+# Load the phyloseq object
+ps <- readRDS(here("data", "lipuma_cf.rds"))
+```
+
+## Questions and Exercises
+
+### Question 1
+
+Understanding the phyloseq object
+
+a) What are the components of the phyloseq object ps? List them.
+
+
+The `phyloseq` object `ps` consists of:
+
+- OTU table (`otu_table`)
+- Sample data (`sample_data`)
+- Taxonomy table (`tax_table`)
+
+
+
+b) How many samples and taxa are in the dataset?
+
+
+```{r}
+nsamples(ps)
+ntaxa(ps)
+```
+
+
+
+### Question 2
+
+Exploring Sample Metadata
+
+a) View the first few rows of the sample data. What variables are included in the sample metadata?
+
+
+```{r}
+head(sample_data(ps))
+```
+Variables include sample ID, subject ID, sample type, treatment group, etc.
+
+
+
+b) How many samples are sputum and how many are saliva?
+
+
+```{r}
+table(sample_data(ps)$sample_type)
+```
+
+
+
+### Question 3
+
+Subsetting the Data
+
+a) Create a subset of the data that includes only sputum samples. Assign this subset to a new phyloseq object called ps_sputum.
+
+
+
+```{r}
+ps_sputum <- subset_samples(ps, sample_type == "Sputum")
+```
+
+
+
+
+b) How many samples are in ps_sputum?
+
+
+```{r}
+nsamples(ps_sputum)
+```
+
+
+
+### Question 4
+
+Taxonomic Summaries
+
+a) Generate a bar plot showing the relative abundance of phyla across all samples.
+
+
+```{r}
+ps |>
+  transform_sample_counts(function(x) x / sum(x)) |>
+  plot_bar(fill = "phylum")
+```
+
+
+
+b) Which phylum is most abundant in the dataset?
+
+
+By examining the bar plot, you can identify the most abundant phylum.
+
+
+
+### Question 5
+
+Alpha Diversity Analysis
+
+a) Calculate the Shannon diversity index for each sample and add it to the sample data.
+
+
+```{r}
+shannon_values <- estimate_richness(ps, measures = "Shannon")
+sample_data(ps)$Shannon <- shannon_values$Shannon
+```
+
+
+
+b) Plot the Shannon diversity index by sample type (sputum vs. saliva). What can you conclude from the plot?
+
+
+```{r}
+ggplot(sample_data(ps), aes(x = sample_type, y = Shannon)) +
+  geom_boxplot() +
+  labs(title = "Shannon Diversity by Sample Type")
+```
+You might conclude that one sample type has higher diversity than the other.
+
+
+
+### Question 6
+
+Beta Diversity and Ordination
+
+a) Perform a Principal Coordinates Analysis (PCoA) using Bray-Curtis distance on the samples.
+
+
+```{r}
+ordination <- ordinate(ps, method = "PCoA", distance = "bray")
+```
+
+
+
+b) Create an ordination plot colored by sample type.
+
+
+```{r}
+plot_ordination(ps, ordination, color = "sample_type") +
+  geom_point(size = 3) +
+  labs(title = "PCoA of Samples")
+```
+
+
+
+c) Do sputum and saliva samples cluster separately?
+
+
+Based on the ordination plot, you can observe whether the samples cluster by type.
+
+
+
+### Question 7
+
+Differential Abundance
+
+a) Identify taxa that are significantly different in abundance between sputum and saliva samples at the genus level.
+
+
+You can use DESeq2 for differential abundance analysis.
+
+```{r message=FALSE}
+# Install DESeq2 if not already installed
+if (!requireNamespace("DESeq2", quietly = TRUE)) {
+    BiocManager::install("DESeq2")
+}
+library(DESeq2)
+
+# Agglomerate taxa at the genus level
+ps_genus <- tax_glom(ps, taxrank = "genus")
+
+# Convert to DESeq2 object
+dds <- phyloseq_to_deseq2(ps_genus, ~ sample_type)
+
+# Run DESeq2 analysis
+dds <- DESeq(dds)
+
+# Get results
+res <- results(dds)
+
+# Subset significant results
+res_sig <- res[which(res$padj < 0.05), ]
+
+# View significant taxa
+res_sig
+```
+
+
+
+b) Which genera are more abundant in sputum compared to saliva?
+
+
+Genera with positive log2 fold change values are more abundant in sputum.
+
+
+
+### Question 8
+
+Custom Plotting
+
+a) Create a heatmap of the top 20 most abundant genera across samples.
+
+
+```{r}
+# Transform counts to relative abundances
+ps_rel <- transform_sample_counts(ps_genus, function(x) x / sum(x))
+
+# Select top 20 genera
+top20_taxa <- names(sort(taxa_sums(ps_rel), decreasing = TRUE))[1:20]
+ps_top20 <- prune_taxa(top20_taxa, ps_rel)
+
+# Plot heatmap
+plot_heatmap(ps_top20, sample.label = "samp_cod", taxa.label = "genus")
+```
+
+
+
+b) Interpret the heatmap. Are there any patterns you can observe?
+
+
+Interpretation will depend on the observed patterns, such as clustering of samples or taxa.
+
+

@@ -1,0 +1,68 @@
+---
+title: "R for Medicine: modeling"
+author: "Matt Broerman"
+format: html
+---
+
+```{r message=FALSE}
+library(ggplot2)
+library(readr)
+library(dplyr)
+library(lubridate)
+library(here)
+
+pe <- read_csv(here("data", "procedureevents.csv"))
+adm <- read_csv(here("data", "admissions.csv"))
+pt <- read_csv(here("data", "patients.csv"))
+```
+
+```{r}
+proc_from_adm <-
+  adm |>
+  left_join(pe) |>
+  select(subject_id,
+         hadm_id,
+         admittime,
+         starttime,
+         ordercategoryname,
+         admission_type) |>
+  mutate(days_from_adm = (starttime - admittime) / ddays(1))
+
+proc_from_adm |> 
+  count(admission_type)
+```
+
+```{r}
+mod_data <-
+  proc_from_adm |> 
+  left_join(pt) |> 
+  filter(ordercategoryname == "Peripheral Lines") |> 
+  mutate(proc_12hr = days_from_adm < 0.5) |> 
+  mutate(ER = admission_type == "EW EMER.") |> 
+  distinct() |> 
+  filter(min(days_from_adm) == days_from_adm, .by = hadm_id) |> 
+  select(-ordercategoryname, -admission_type, -starttime)
+
+plot(x = 1:10, y = sample(0:1, size = 10, replace = TRUE))
+  
+mod1 <- mod_data |> glm(ER ~ proc_12hr + gender + anchor_age, data = _, family = "binomial")
+
+mod1 |> 
+  summary()
+
+library(broom)
+
+mod1 |> tidy()
+mod1 |> glance()
+
+library(gtsummary)
+
+mod_data |> 
+  select(gender, anchor_age, ER) |> 
+  tbl_summary()
+
+mod1 |> 
+  tbl_regression(exponentiate = TRUE)
+
+```
+
