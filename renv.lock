@@ -66,18 +66,6 @@
         "snow"
       ]
     },
-    "BiocVersion": {
-      "Package": "BiocVersion",
-      "Version": "3.18.1",
-      "Source": "Repository",
-      "Repository": "Bioconductor 3.18",
-      "git_url": "https://git.bioconductor.org/packages/BiocVersion",
-      "git_branch": "RELEASE_3_18",
-      "git_last_commit": "70680b8",
-      "git_last_commit_date": "2023-11-15",
-      "Hash": "2ecaed86684f5fae76ed5530f9d29c4a",
-      "Requirements": []
-    },
     "Biostrings": {
       "Package": "Biostrings",
       "Version": "2.70.3",
